@@ -1,0 +1,93 @@
+
+# Pseudocode for Image Retrieval Algorithm
+
+## 1. Device Selection
+# Check if CUDA is available for GPU usage, otherwise, use CPU.
+if CUDA is available:
+    use GPU (cuda:0)
+else:
+    use CPU
+
+## 2. Dataset Preparation
+# Load the image paths from the dataset directory into a pandas DataFrame.
+# Update the DataFrame with the full paths to the images.
+Load image paths from dataset directory into DataFrame
+Add full paths to image column in DataFrame
+
+## 3. CBIR Dataset Class
+# Define a custom dataset class to process and load images for training.
+class CBIRDataset:
+    # Initialize the dataset with the dataframe containing image paths
+    Initialize with dataframe containing image paths
+    # Define image transformations such as converting images to tensors and normalizing
+    Define transformations (e.g., ToTensor, Normalize)
+    # For each image in the dataset, apply the transformations and return the image
+    For each image in dataset:
+        Apply transformations to image
+        Return transformed image
+
+## 4. Data Preparation Function
+# Define a function that splits the data into training and validation sets.
+function prepare_data(DataFrame):
+    # Split DataFrame into training and validation sets (e.g., 85% train, 15% validation)
+    Split DataFrame into train and validation sets
+    # Initialize datasets for training and validation
+    Initialize CBIRDataset for training and validation sets
+
+## 5. Autoencoder Model Definition
+# Define an Autoencoder model with encoder and decoder layers.
+class Autoencoder:
+    # Initialize encoder and decoder networks
+    Initialize encoder and decoder networks
+    # Encoder includes Conv2D layers with ReLU activations and MaxPool2D layers for downsampling
+    Encoder:
+        Conv2D layers with ReLU activations
+        MaxPool2D layers for downsampling
+    # Decoder includes ConvTranspose2D layers for upsampling the image
+    Decoder:
+        ConvTranspose2D layers with ReLU activations
+        Upsampling to reconstruct the image
+    # Define the forward pass
+    Define forward pass:
+        Pass input through encoder
+        Pass encoder output through decoder
+        Return output
+
+## 6. Training Loop
+# Define a training loop for training the autoencoder model using the training dataset.
+function train_autoencoder(model, train_loader, optimizer, criterion):
+    for each batch in train_loader:
+        # Forward pass through the model
+        Forward pass through the model
+        # Compute loss using the criterion (e.g., MSE loss)
+        Compute loss between predicted and actual images
+        # Backpropagate the gradients and update weights
+        Backpropagate gradients
+        Update weights using optimizer
+
+## 7. Image Retrieval Using Hashing (VP-Tree)
+# Define a function for image retrieval using a VP-Tree based approach.
+function image_retrieval(image, dataset, hashing_method):
+    # Preprocess the image and extract its feature vector
+    Preprocess and extract feature vector of the image
+    # Perform image retrieval using VP-Tree or hashing-based search methods
+    Retrieve similar images using VP-Tree or hashing
+    # Return the top-N most similar images based on the feature similarity
+    Return top-N similar images
+
+## 8. Evaluation of the Model
+# Define a function for evaluating the model on the validation dataset.
+function evaluate_model(model, validate_loader, criterion):
+    for each batch in validate_loader:
+        # Forward pass through the model
+        Forward pass through the model
+        # Compute loss using the criterion
+        Compute loss between predicted and actual images
+        # Track the overall validation performance (e.g., average loss)
+        Track and compute average validation loss
+    # Return evaluation metrics such as accuracy or loss
+    Return evaluation metrics (e.g., accuracy, loss)
+
+## 9. Cleanup and Final Steps
+# Perform any necessary cleanup steps after training and evaluation.
+Cleanup resources (e.g., empty cache, clear GPU memory)

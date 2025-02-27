@@ -1,0 +1,102 @@
+
+### 3.4 Description of Pseudocode for the Proposed Method
+
+The pseudocode provided outlines the key components of the image retrieval algorithm, covering essential steps from data preparation and model training to retrieval mechanisms and final evaluations. Below is a more technical breakdown of each section in the context of the overall approach.
+
+#### 3.4.1 Device Selection (Step 1)
+The **device selection** block in the pseudocode is the first step in determining whether to use a GPU (via CUDA) or fall back to the CPU for model training. The use of GPUs is essential for accelerating the training of deep learning models, especially in computationally intensive tasks such as image processing and feature extraction. The pseudocode checks if CUDA-compatible GPUs are available and assigns the device accordingly:
+```python
+if CUDA is available:
+    use GPU (cuda:0)
+else:
+    use CPU
+```
+This ensures efficient resource utilization by selecting the hardware best suited for model execution.
+
+#### 3.4.2 Dataset Preparation (Step 2)
+In this step, the algorithm loads image paths from a specified dataset directory into a pandas DataFrame. The purpose of this preparation is to create a structured format (DataFrame) to store image paths, making it easier to process and load images for training. The `image` column in the DataFrame holds the full paths of each image:
+```python
+Load image paths from dataset directory into DataFrame
+Add full paths to image column in DataFrame
+```
+This structured data format is ideal for feeding into machine learning pipelines and ensures that images are loaded efficiently during training and testing.
+
+#### 3.4.3 CBIR Dataset Class (Step 3)
+The **CBIRDataset class** is designed to handle image loading and preprocessing. The `__init__` method of the class initializes the dataset with the paths from the DataFrame, and the `__getitem__` method applies necessary transformations to each image, including conversion to tensors and normalization. These transformations are crucial for preparing the data to be input into the neural network:
+```python
+class CBIRDataset:
+    Initialize with dataframe containing image paths
+    Define transformations (e.g., ToTensor, Normalize)
+    For each image in dataset:
+        Apply transformations to image
+        Return transformed image
+```
+These transformations standardize image data, ensuring that input features are consistent across the entire dataset, which improves model performance.
+
+#### 3.4.4 Data Preparation Function (Step 4)
+The **prepare_data** function is responsible for splitting the dataset into training and validation sets. The function uses `train_test_split` from the sklearn library to partition the data, ensuring that the model is evaluated on a separate validation set to gauge its generalization ability:
+```python
+function prepare_data(DataFrame):
+    Split DataFrame into train and validation sets
+    Initialize CBIRDataset for training and validation sets
+```
+The function also creates `CBIRDataset` instances for both the training and validation data, providing easy access to batches of images during training.
+
+#### 3.4.5 Autoencoder Model Definition (Step 5)
+This section defines the architecture of the **Autoencoder** model, which is central to the feature extraction process. The Autoencoder consists of two parts: the **encoder** and the **decoder**. The encoder compresses the input image into a latent space representation using Conv2D layers with ReLU activations, while the decoder attempts to reconstruct the original image from the latent space. The encoder and decoder utilize pooling and transpose convolution layers, respectively, for downsampling and upsampling:
+```python
+class Autoencoder:
+    Initialize encoder and decoder networks
+    Encoder:
+        Conv2D layers with ReLU activations
+        MaxPool2D layers for downsampling
+    Decoder:
+        ConvTranspose2D layers with ReLU activations
+        Upsampling to reconstruct image
+    Define forward pass:
+        Pass input through encoder
+        Pass encoder output through decoder
+        Return output
+```
+The forward pass first encodes the input into a low-dimensional feature vector (latent space) and then decodes it to approximate the original image. The loss function (not shown in the pseudocode) would likely be based on the reconstruction error between the original and the reconstructed image.
+
+#### 3.4.6 Training Loop (Step 6)
+In the **training loop**, the model is trained using batches of images. For each batch in the `train_loader`, the algorithm performs a forward pass through the Autoencoder, computes the loss (e.g., Mean Squared Error between predicted and actual images), and then updates the weights using backpropagation:
+```python
+function train_autoencoder(model, train_loader, optimizer, criterion):
+    for each batch in train_loader:
+        Forward pass through the model
+        Compute loss between predicted and actual images
+        Backpropagate gradients
+        Update weights using optimizer
+```
+This loop ensures that the model gradually learns to minimize the reconstruction error, adjusting the model parameters to improve the image retrieval process.
+
+#### 3.4.7 Image Retrieval Using Hashing (VP-Tree) (Step 7)
+For **image retrieval**, the method uses a **VP-Tree** (Vantage Point Tree) or hashing technique. The image is first preprocessed, and its feature vector is extracted using the trained Autoencoder model. The retrieved feature vector is then used to search for similar images in the dataset:
+```python
+function image_retrieval(image, dataset, hashing_method):
+    Preprocess and extract feature vector of the image
+    Retrieve similar images using VP-Tree or hashing
+    Return top-N similar images
+```
+This method uses the VP-Tree to efficiently identify the top-N similar images based on the feature similarity. The use of hashing or VP-Tree ensures that the retrieval time is logarithmic, making the process efficient even for large datasets.
+
+#### 3.4.8 Evaluation of the Model (Step 8)
+The **evaluation function** assesses the model's performance on a validation set. The function computes the loss for each batch in the validation loader and tracks the overall validation performance. Metrics like accuracy or loss are returned, which are critical for understanding how well the model generalizes to unseen data:
+```python
+function evaluate_model(model, validate_loader, criterion):
+    for each batch in validate_loader:
+        Forward pass through the model
+        Compute loss between predicted and actual images
+        Track and compute average validation loss
+    Return evaluation metrics
+```
+This allows for an objective assessment of the model’s ability to retrieve similar images from a test set.
+
+#### 3.4.9 Cleanup and Final Steps (Step 9)
+Finally, the **cleanup** step ensures that any resources allocated during training are released, such as clearing the GPU memory to prevent unnecessary memory usage:
+```python
+Cleanup resources (e.g., empty cache, clear GPU memory)
+```
+This is a standard practice after training deep learning models, as it helps in managing resources effectively.
